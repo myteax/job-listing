@@ -1,25 +1,40 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import useFetch from "./Hooks/useFetch";
+import { Container } from "react-bootstrap";
+import JobsPagination from "./Components/JobsPagination";
+import Jobs from "./Components/Jobs";
+import Search from "./Components/Search";
+import "./App.css";
 
 function App() {
+  // const URL =
+  //   "https://cors-anywhere.herokuapp.com/https://jobs.github.com/positions.json";
+  const [params, setParams] = useState({});
+  const [page, setPage] = useState(1);
+
+  const { jobs, loading, error } = useFetch(params, page);
+
+  const onChange = (e) => {
+    let name = e.target.name;
+    let value = e.target.value;
+
+    setParams({ ...params, [name]: value });
+    setPage(1);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Container>
+      <h1 className="mb-3">GitHub Jobs</h1>
+      <Search change={onChange} />
+      <JobsPagination page={page} setPage={setPage} />
+
+      <p>{loading ? "Loading" : ""}</p>
+      <p>{error ? "error" : ""}</p>
+      {jobs.map((jobs) => {
+        return <Jobs key={jobs.id} jobs={jobs} />;
+      })}
+      <JobsPagination page={page} setPage={setPage} />
+    </Container>
   );
 }
 
